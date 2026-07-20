@@ -31,7 +31,7 @@ class XthingsEntity(CoordinatorEntity[XthingsDataUpdateCoordinator]):
             name=device_info.name,
             manufacturer=device_info.manufacturer,
             model=device_info.model,
-            sw_version=device_info.hw_version,
+            hw_version=device_info.hw_version,
         )
 
     @property

@@ -7,6 +7,7 @@ import uuid
 from typing import Any
 from urllib.parse import quote
 
+from homeassistant.config_entries import ConfigEntryAuthFailed
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import config_entry_oauth2_flow
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
@@ -15,6 +16,7 @@ from homeassistant.helpers.network import get_url
 
 from .const import (
     API_BASE_URL,
+    CONF_REDIRECT_URI,
     HTTP_OK,
     NS_CONFIGURE,
     NS_DEVICE,
@@ -91,8 +93,6 @@ class XthingsOAuth2Implementation(
     @property
     def redirect_uri(self) -> str:
         """Return the redirect URI."""
-        from .const import CONF_REDIRECT_URI  # noqa: PLC0415
-
         # Check for override set during the config flow
         override = self.hass.data.get(self._domain, {}).get("redirect_uri_override")
         if override:
@@ -206,14 +206,14 @@ class XthingsOAuth2Implementation(
                     resp.status,
                     error_text,
                 )
-                raise config_entry_oauth2_flow.OAuth2AuthorizationError(
+                raise ConfigEntryAuthFailed(
                     f"Token refresh failed: {resp.status}"
                 )
             token_data = await resp.json()
 
         if "data" in token_data and "error" in token_data.get("data", {}):
             error_msg = token_data["data"]["error"]
-            raise config_entry_oauth2_flow.OAuth2AuthorizationError(
+            raise ConfigEntryAuthFailed(
                 f"Token refresh error: {error_msg}"
             )
 
